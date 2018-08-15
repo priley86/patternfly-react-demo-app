@@ -87,7 +87,7 @@ objects:
           - name: OUTPUT_DIR
             value: ${OUTPUT_DIR}
           - name: YARN_ENABLED
-            value: 1
+            value: 'true'
         from:
           kind: ImageStreamTag
           name: web-app-builder-runtime:latest
