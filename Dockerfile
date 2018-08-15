@@ -9,12 +9,15 @@ RUN printf "[nginx]\nname=nginx repo\nbaseurl=http://nginx.org/packages/centos/7
 
 RUN chmod 777 /var/log/nginx && chmod 777 /var/cache/nginx && chmod 777 /var/run && rm -rf /var/log/nginx/* && rm -rf /var/cache/nginx/*
 
+ENV NODE_ENV=production \
+    NODE_PORT=8080
+
 WORKDIR /opt/patternfly-react-demo-app
 ADD . /opt/patternfly-react-demo-app
 ADD deployment/nginx.conf /etc/nginx/nginx.conf
 
-RUN yarn --production --non-interactive \
-    && yarn build
+RUN yarn --production --non-interactive --silent \
+    && yarn build >/dev/null
 
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
