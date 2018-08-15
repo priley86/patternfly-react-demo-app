@@ -1,213 +1,205 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: patternfly-react-demo-app
+  name: patternfly-react-demo-app-template
   annotations:
-    iconClass: icon-jboss
-    tags: nodejs, react, web app
-    template.openshift.io/provider-display-name: "Red Hat, Inc."
-    description: Just building a little react app with a web builder
-parameters:
-  - name: SOURCE_REPOSITORY_URL
-    description: The source URL for the application
-    displayName: Source URL
-    required: true
-  - name: SOURCE_REPOSITORY_REF
-    description: The branch name for the application
-    displayName: Source Branch
-    value: master
-    required: true
-  - name: SOURCE_REPOSITORY_DIR
-    description: The location within the source repo of the application
-    displayName: Source Directory
-    value: .
-    required: true
-  - name: OUTPUT_DIR
-    description: The location of the compiled static files from your web apps builder
-    displayName: Output Directory
-    value: build
-    required: false
-  - name: GITHUB_WEBHOOK_SECRET
-    description: A secret string used to configure the GitHub webhook.
-    displayName: GitHub Webhook Secret
-    required: true
-    from: '[a-zA-Z0-9]{40}'
-    generate: expression
+    openshift.io/display-name: "PatternFly-React-Demo-UI"
+    description: "Cloud Cost Management UI powered by Patternfly+ReactJS"
+    tags: "patternfly,reactjs"
+    iconClass: "icon-javascript"
+    openshift.io/long-description: "This template defines resources needed to run the PatternFly-React-Demo-UI application, including a build configuration, application deployment configuration."
+    openshift.io/provider-display-name: "Red Hat, Inc."
+    openshift.io/documentation-url: "https://priley86.readthedocs.io/en/latest/"
+labels:
+  app: patternfly-react-demo-app
+  template: patternfly-react-demo-app-template
 objects:
 - apiVersion: v1
   kind: ImageStream
   metadata:
-    name: patternfly-react-demo-app-builder
-  spec: {}
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: patternfly-react-demo-app-runtime
-  spec: {}
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: web-app-builder-runtime
+    name: centos
+    namespace: ${NAMESPACE}
   spec:
+    lookupPolicy:
+      local: false
     tags:
-    - name: latest
+    - annotations: null
       from:
         kind: DockerImage
-        name: bucharestgold/centos7-s2i-web-app:0.0.2
+        name: centos
+      name: "7"
+      referencePolicy:
+        type: Source
 - apiVersion: v1
-  kind: ImageStream
   metadata:
-    name: nginx-image-runtime
-  spec:
-    tags:
-    - name: latest
-      from:
-        kind: DockerImage
-        name: 'centos/nginx-112-centos7:latest'
-- apiVersion: v1
-  kind: BuildConfig
-  metadata:
-    name: patternfly-react-demo-app-builder
-  spec:
-    output:
-      to:
-        kind: ImageStreamTag
-        name: patternfly-react-demo-app-builder:latest
-    postCommit: {}
-    resources: {}
-    source:
-      git:
-        uri: ${SOURCE_REPOSITORY_URL}
-        ref: ${SOURCE_REPOSITORY_REF}
-      contextDir: ${SOURCE_REPOSITORY_DIR}
-      type: Git
-    strategy:
-      sourceStrategy:
-        env:
-          - name: OUTPUT_DIR
-            value: ${OUTPUT_DIR}
-        from:
-          kind: ImageStreamTag
-          name: web-app-builder-runtime:latest
-        incremental: true
-      type: Source
-    triggers:
-    - github:
-        secret: ${GITHUB_WEBHOOK_SECRET}
-      type: GitHub
-    - type: ConfigChange
-    - imageChange: {}
-      type: ImageChange
-  status:
-    lastVersion: 0
-- apiVersion: v1
-  kind: BuildConfig
-  metadata:
-    name: patternfly-react-demo-app-runtime
-  spec:
-    output:
-      to:
-        kind: ImageStreamTag
-        name: patternfly-react-demo-app-runtime:latest
-    postCommit: {}
-    resources: {}
-    source:
-      type: Image
-      images:
-        - from:
-            kind: ImageStreamTag
-            name: patternfly-react-demo-app-builder:latest
-          paths:
-            - destinationDir: .
-              sourcePath: /opt/app-root/output/.
-    strategy:
-      sourceStrategy:
-        from:
-          kind: ImageStreamTag
-          name: nginx-image-runtime:latest
-        incremental: true
-      type: Source
-    triggers:
-    - github:
-        secret: ${GITHUB_WEBHOOK_SECRET}
-      type: GitHub
-    - type: ConfigChange
-    - type: ImageChange
-      imageChange: {}
-    - type: ImageChange
-      imageChange:
-        from:
-          kind: ImageStreamTag
-          name: patternfly-react-demo-app-builder:latest
-  status:
-    lastVersion: 0
-- apiVersion: v1
-  kind: DeploymentConfig
-  metadata:
+    name: patternfly-react-demo-app-env
     labels:
-      app: patternfly-react-demo-app
-    name: patternfly-react-demo-app
-  spec:
-    replicas: 1
-    revisionHistoryLimit: 2
-    selector:
-      app: patternfly-react-demo-app
-    strategy:
-      rollingParams:
-        timeoutSeconds: 3600
-      type: Rolling
-    template:
-      metadata:
-        labels:
-          app: patternfly-react-demo-app
-      spec:
-        containers:
-        - env:
-          - name: KUBERNETES_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
-          image: patternfly-react-demo-app-runtime
-          imagePullPolicy: IfNotPresent
-          name: patternfly-react-demo-app-runtime
-          ports:
-          - containerPort: 8080
-            name: http
-            protocol: TCP
-      metadata:
-        labels:
-          app: patternfly-react-demo-app
-    triggers:
-      - type: ConfigChange
-      - type: ImageChange
-        imageChangeParams:
-          automatic: true
-          containerNames:
-            - patternfly-react-demo-app-runtime
-          from:
-            kind: ImageStreamTag
-            name: 'patternfly-react-demo-app-runtime:latest'
+      name: ${NAME}
+  data:
+    app-namespace: ${NAMESPACE}
+  kind: ConfigMap
 - apiVersion: v1
   kind: Service
   metadata:
-    labels:
-      app: patternfly-react-demo-app
-    name: patternfly-react-demo-app
+    annotations:
+      description: Exposes and load balances the application pods
+    name: ${NAME}
   spec:
     ports:
-    - name: http
+    - name: 8080-tcp
       port: 8080
+      protocol: TCP
+      targetPort: 8080
     selector:
-      app: patternfly-react-demo-app
+      name: ${NAME}
 - apiVersion: v1
   kind: Route
   metadata:
-    labels:
-      app: patternfly-react-demo-app
-    name: patternfly-react-demo-app
+    name: ${NAME}
   spec:
-    port:
-      targetPort: 8080
+    host: ${APPLICATION_DOMAIN}
     to:
       kind: Service
-      name: patternfly-react-demo-app
+      name: ${NAME}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: ${NAME}
+    annotations:
+      description: "Keeps track of changes in the application image"
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      description: Defines how to build the application
+      template.alpha.openshift.io/wait-for-ready: "true"
+    name: ${NAME}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${NAME}:latest
+    resources:
+      limits:
+        memory: ${MEMORY_LIMIT}
+    source:
+      contextDir: ${CONTEXT_DIR}
+      git:
+        ref: ${SOURCE_REPOSITORY_REF}
+        uri: ${SOURCE_REPOSITORY_URL}
+      type: Git
+    strategy:
+      dockerStrategy:
+        env:
+          - name: APP_NAMESPACE
+            valueFrom:
+              configMapKeyRef:
+                name: patternfly-react-demo-app-env
+                key: app-namespace
+                optional: false
+        from:
+          kind: ImageStreamTag
+          name: centos:7
+          namespace: ${NAMESPACE}
+      type: Source
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the application server
+      template.alpha.openshift.io/wait-for-ready: "true"
+    name: ${NAME}
+  spec:
+    replicas: 1
+    selector:
+      name: ${NAME}
+    resources:
+      limits:
+        memory: ${MEMORY_LIMIT}
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          name: ${NAME}
+        name: ${NAME}
+      spec:
+        containers:
+        - name: ${NAME}
+          image: ${NAME}
+          env:
+            - name: APP_NAMESPACE
+              valueFrom:
+                configMapKeyRef:
+                  name: patternfly-react-demo-app-env
+                  key: app-namespace
+                  optional: false
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            timeoutSeconds: 3
+          resources:
+            limits:
+              memory: ${MEMORY_LIMIT}
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - ${NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${NAME}:latest
+      type: ImageChange
+parameters:
+- description: The name assigned to all frontend objects defined in this template.
+  displayName: Name
+  name: NAME
+  required: true
+  value: patternfly-react-demo-app
+- description: The OpenShift Namespace where the ImageStream resides.
+  displayName: Namespace
+  name: NAMESPACE
+  required: true
+  value: priley86
+- description: Maximum amount of memory the Django container can use.
+  displayName: Memory Limit
+  name: MEMORY_LIMIT
+  required: true
+  value: 1Gi
+- description: The URL of the repository with your application source code.
+  displayName: Git Repository URL
+  name: SOURCE_REPOSITORY_URL
+  required: true
+  value: https://github.com/priley86/patternfly-react-demo-app.git
+- description: Set this to a branch name, tag or other ref of your repository if you
+    are not using the default branch.
+  displayName: Git Reference
+  name: SOURCE_REPOSITORY_REF
+- description: Set this to the relative path to your project if it is not in the root
+    of your repository.
+  displayName: Context Directory
+  name: CONTEXT_DIR
+- description: The exposed hostname that will route to the nginx service, if left
+    blank a value will be defaulted.
+  displayName: Application Hostname
+  name: APPLICATION_DOMAIN
