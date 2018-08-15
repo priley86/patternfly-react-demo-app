@@ -56,7 +56,8 @@
     "lint": "yarn lint:js",
     "lint:js": "eslint --max-warnings 0 src",
     "docker:build": "docker build -t patternfly-react-demo-app .",
-    "docker:push": "docker push"
+    "docker:push": "docker push",
+    "preinstall": "node -v; npm -v;"
   },
   "browserslist": {
     "development": [
