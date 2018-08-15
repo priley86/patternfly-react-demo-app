@@ -58,17 +58,5 @@
     "docker:build": "docker build -t patternfly-react-demo-app .",
     "docker:push": "docker push",
     "preinstall": "node -v; npm -v;"
-  },
-  "browserslist": {
-    "development": [
-      "last 2 chrome versions",
-      "last 2 firefox versions",
-      "last 2 edge versions"
-    ],
-    "production": [
-      ">0.25%",
-      "not op_mini all",
-      "ie 11"
-    ]
   }
 }
