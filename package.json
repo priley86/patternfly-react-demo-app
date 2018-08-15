@@ -27,6 +27,9 @@
     "sortabular": "^1.5.1",
     "table-resolver": "^3.2.0"
   },
+  "resolutions": {
+    "babel-core": "6.26.3"
+  },
   "devDependencies": {
     "source-map-explorer": "^1.5.0"
   },
