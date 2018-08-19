@@ -53,7 +53,7 @@
     "start": "run-p -l commit:hash serve api:dev",
     "serve": "http-server build/ -a localhost -p8080",
     "start:dev": "run-p -l commit:hash watch:css start:local api:dev",
-    "start:local": "react-scripts start",
+    "start:local": "NODE_PATH=src/ react-scripts start",
     "commit:hash": "export REACT_APP_UI_COMMIT_HASH=$(git rev-list -1 --all)",
     "build": "yarn copy:fonts && yarn copy:img && yarn build:css && yarn build:js; yarn postbuild;",
     "test": "yarn lint && NODE_PATH=src/ react-scripts test --env=jsdom --coverage",
