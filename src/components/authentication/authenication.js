@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { noop, Button, Card, Form, Grid } from 'patternfly-react';
+import titleImgBrand from 'img/login-reversed.svg';
 import { connect, reduxActions } from '../../redux';
 import apiTypes from '../../constants/apiConstants';
 import { fieldValidation } from '../formField/formField';
 import { OC_MODE } from '../../common/helpers';
-import titleImgBrand from '../../img/login-reversed.svg';
 
 // todo: use patternfly-react LoginPage comonent
 
