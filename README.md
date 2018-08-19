@@ -28,7 +28,7 @@ You can deploy the app to Open Shift using the following commands:
 ```
 oc new-project patternfly
 find . | grep openshiftio | grep application | xargs -n 1 oc apply -f
-oc new-app --template react-demo-app -p SOURCE_REPOSITORY_URL=https://github.com/patternfly/patternfly-react-demo-app
+oc new-app --template react-demo-app -p SOURCE_REPOSITORY_URL=https://github.com/priley86/patternfly-react-demo-app -p SOURCE_REPOSITORY_REF=rcue
 ```
 
 You can also create a Docker image using the following:

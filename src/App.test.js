@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { baseName } from './routes';
 import store from './redux/store';
-import App from './app';
+import App from './App';
 
 // const store = createStore((state = []) => state);
 

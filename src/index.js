@@ -6,7 +6,7 @@ import 'patternfly/dist/css/rcue.css';
 import 'patternfly/dist/css/rcue-additions.css';
 import './styles/.css/index.css';
 
-import App from './app';
+import App from './App';
 import { baseName } from './routes';
 import store from './redux/store';
 
