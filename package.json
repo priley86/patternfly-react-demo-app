@@ -5,6 +5,7 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "detect-browser": "^3.0.0",
+    "http-server": "^0.11.1",
     "js-cookie": "^2.2.0",
     "lodash.get": "^4.4.2",
     "numeral": "^2.0.6",
@@ -49,7 +50,8 @@
     "build:css": "node-sass-chokidar --include-path ./src --include-path ./node_modules src/styles/index.scss -o src/styles/.css",
     "watch:css": "yarn build:css && node-sass-chokidar --include-path ./src --include-path ./node_modules src/styles/index.scss -o src/styles/.css --watch --recursive",
     "build:js": "react-scripts build",
-    "start": "yarn commit:hash && NODE_ENV=production react-scripts start",
+    "start": "run-p -l commit:hash serve api:dev",
+    "serve": "http-server build/ -a localhost -p8080",
     "start:dev": "run-p -l commit:hash watch:css start:local api:dev",
     "start:local": "react-scripts start",
     "commit:hash": "export REACT_APP_UI_COMMIT_HASH=$(git rev-list -1 --all)",
