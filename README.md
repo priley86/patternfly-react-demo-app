@@ -13,24 +13,26 @@ The most recent version of the create-react-app guide can be found [here](https:
 
 **Note** If you do not have yarn installed run: `npm install -g yarn`
 
-Run the following commands:
+Run the following commands to start development:
 
 ```
 yarn install
 yarn build
-yarn start
+yarn start:dev
 ```
 
 ## Deployment
+
 You can deploy the app to Open Shift using the following commands:
 
 ```
-oc new-project patternfly-react
+oc new-project patternfly
 find . | grep openshiftio | grep application | xargs -n 1 oc apply -f
-oc new-app --template demo-app -p SOURCE_REPOSITORY_URL=https://github.com/patternfly/patternfly-react-demo-app
+oc new-app --template react-demo-app -p SOURCE_REPOSITORY_URL=https://github.com/patternfly/patternfly-react-demo-app
 ```
 
 You can also create a Docker image using the following:
+
 ```
 yarn docker:build
 ```
@@ -71,11 +73,23 @@ create-react-app build. The `App.scss` file will include all PatternFly Sass alo
 
 **Note** Only static assets which are `import`'ed into your application will be included in your resulting build output. I.e. `import './App.css';` will ensure `App.css` is included.
 
+#### Debugging Redux
+
+This project makes use of React & Redux. To enable Redux console logging, within the repository root directory, add a `.env.local` (dotenv) file with the follow line
+
+```
+REACT_APP_DEBUG_MIDDLEWARE=true
+```
+
+Once you've made the change, restart the project and console browser logging should appear.
+
+_Any changes you make to the `.env.local` file should be ignored with `.gitignore`._
+
 ## Available Scripts
 
 In the project directory, you can run:
 
-### `yarn start`
+### `yarn start:dev`
 
 Runs the app in the development mode.<br>
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
