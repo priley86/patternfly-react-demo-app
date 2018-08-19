@@ -6,12 +6,5 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'no-console': 'off',
     'import/no-named-as-default': 'off'
-  },
-  settings: {
-    'import/resolver': {
-      node: {
-        moduleDirectory: ['node_modules', 'src/']
-      }
-    }
   }
 };
